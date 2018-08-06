@@ -21,12 +21,13 @@
  ***************************************************************************/
 """
 from PyQt4.QtCore import QSettings, QTranslator, qVersion, QCoreApplication
-from PyQt4.QtGui import QAction, QIcon
+from PyQt4.QtGui import QAction, QIcon, QFileDialog
 # Initialize Qt resources from file resources.py
 import resources
 # Import the code for the dialog
 from wor_checker_dialog import WorCheckerDialog
 import os.path
+import re
 
 
 class WorChecker:
@@ -156,6 +157,9 @@ class WorChecker:
 
         self.actions.append(action)
 
+        # Mine knapper
+        self.dlg.pushButton.clicked.connect(self.path_to_wor)
+
         return action
 
     def initGui(self):
@@ -179,6 +183,35 @@ class WorChecker:
         # remove the toolbar
         del self.toolbar
 
+
+    def path_to_wor(self):
+        """
+        Finder path til wor fil og skriver ind i textbox.
+        """
+
+        wor_path = QFileDialog.getOpenFileName(self.dlg, 'Vælg MapInfo arbejdsområde')
+        self.dlg.lineEdit.setText(wor_path)
+
+        wor_data = self.read_wor_file(wor_path)
+
+        self.dlg.listWidget.clear()
+        self.dlg.listWidget.addItems([name for name in wor_data])
+        
+
+    def read_wor_file(self, filepath):
+        """
+        Læser wor fil og finder filer.
+
+        :returns: Dictionary med filnavne som key og path som values.
+        """
+
+        with open(filepath, 'r') as f:
+            data = {}
+            for line in f:
+                if line.startswith('Open Table'):
+                    path = re.findall(r'"(.*)"\s', line)[0]
+                    data[os.path.basename(path)] = path + '.TAB'
+        return data
 
     def run(self):
         """Run method that performs all the real work"""
