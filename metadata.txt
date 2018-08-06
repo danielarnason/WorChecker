@@ -1,0 +1,39 @@
+# This file contains metadata for your plugin. Since 
+# version 2.0 of QGIS this is the proper way to supply 
+# information about a plugin. The old method of 
+# embedding metadata in __init__.py will 
+# is no longer supported since version 2.0.
+
+# This file should be included when you package your plugin.# Mandatory items:
+
+[general]
+name=MapInfo WOR Checker
+qgisMinimumVersion=2.0
+description=Dette plugin viser, hvilke filer et MapInfo workspace  refererer til.
+version=0.1
+author=Daníel Örn Árnason
+email=daniel.arnason@egekom.dk
+
+about=Dette plugin presentærer en liste af alle filer, som er bliver refereret til i et MapInfo arbejdsområde (.wor). Man kan så vælge, hvilke filer man vil åbne i QGIS.
+
+tracker=https://github.com/danielarnason/wor_checker/issues
+repository=https://github.com/danielarnason/wor_checker
+# End of mandatory metadata
+
+# Recommended items:
+
+# Uncomment the following line and add your changelog:
+# changelog=
+
+# Tags are comma separated with spaces allowed
+tags=python, wor, mapinfo
+
+homepage=https://github.com/danielarnason/wor_checker
+category=Plugins
+icon=icon.png
+# experimental flag
+experimental=True
+
+# deprecated flag (applies to the whole plugin, not just a single version)
+deprecated=False
+

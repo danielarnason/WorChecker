@@ -1,0 +1,5 @@
+<RCC>
+    <qresource prefix="/plugins/WorChecker" >
+        <file>icon.png</file>
+    </qresource>
+</RCC>
