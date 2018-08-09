@@ -23,6 +23,7 @@
 from PyQt4.QtCore import QSettings, QTranslator, qVersion, QCoreApplication
 from PyQt4.QtGui import QAction, QIcon, QFileDialog
 from qgis.core import QgsVectorLayer, QGis
+from qgis.utils import iface
 # Initialize Qt resources from file resources.py
 import resources
 # Import the code for the dialog
@@ -162,10 +163,10 @@ class WorChecker:
         self.dlg.pushButton.clicked.connect(self.path_to_wor)
 
         # Listwidgets og den slags
-        self.dlg.listWidget.itemClicked.connect(self.file_info)
+        self.dlg.listWidget.currentItemChanged.connect(self.file_info)
 
         # TODO: Slet denne knap til sidts
-        self.dlg.pushButton_2.clicked.connect(self.file_info)
+        self.dlg.pushButton_3.clicked.connect(self.open_file)
 
         return action
 
@@ -250,6 +251,16 @@ class WorChecker:
                 return 'Multipolygoner'
         else:
             return '{} er ikke valid datakilde'.format(layer.name())
+
+    def open_file(self):
+        """
+        Åbner en fil i lagvinduet
+        """
+        for f, path in self.wor_data.iteritems():
+            if f == self.dlg.listWidget.currentItem().text():
+                lyr = iface.addVectorLayer(path, os.path.basename(path), 'ogr')
+                if not lyr.isValid():
+                    print '{} er ikke en valid datakilde'.format(lyr.name())
 
     def run(self):
         """Run method that performs all the real work"""
