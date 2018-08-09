@@ -22,6 +22,7 @@
 """
 from PyQt4.QtCore import QSettings, QTranslator, qVersion, QCoreApplication
 from PyQt4.QtGui import QAction, QIcon, QFileDialog
+from qgis.core import QgsVectorLayer, QGis
 # Initialize Qt resources from file resources.py
 import resources
 # Import the code for the dialog
@@ -160,6 +161,12 @@ class WorChecker:
         # Mine knapper
         self.dlg.pushButton.clicked.connect(self.path_to_wor)
 
+        # Listwidgets og den slags
+        self.dlg.listWidget.itemClicked.connect(self.file_info)
+
+        # TODO: Slet denne knap til sidts
+        self.dlg.pushButton_2.clicked.connect(self.file_info)
+
         return action
 
     def initGui(self):
@@ -189,18 +196,18 @@ class WorChecker:
         Finder path til wor fil og skriver ind i textbox.
         """
 
-        wor_path = QFileDialog.getOpenFileName(self.dlg, 'Vælg MapInfo arbejdsområde')
+        wor_path = QFileDialog.getOpenFileName(self.dlg, 'Vï¿½lg MapInfo arbejdsomrï¿½de')
         self.dlg.lineEdit.setText(wor_path)
 
-        wor_data = self.read_wor_file(wor_path)
+        self.wor_data = self.read_wor_file(wor_path)
 
         self.dlg.listWidget.clear()
-        self.dlg.listWidget.addItems([name for name in wor_data])
+        self.dlg.listWidget.addItems([name for name in self.wor_data])
         
 
     def read_wor_file(self, filepath):
         """
-        Læser wor fil og finder filer.
+        Lï¿½ser wor fil og finder filer.
 
         :returns: Dictionary med filnavne som key og path som values.
         """
@@ -212,6 +219,37 @@ class WorChecker:
                     path = re.findall(r'"(.*)"\s', line)[0]
                     data[os.path.basename(path)] = path + '.TAB'
         return data
+
+    def file_info(self):
+        """
+        LÃ¦ser info om valgt tab fil og skriver i info box.
+        """
+        self.dlg.textEdit.clear()
+
+        filename = self.dlg.listWidget.currentItem().text()
+        for f, path in self.wor_data.iteritems():
+            if filename == f:
+                lyr = QgsVectorLayer(path, f, 'ogr')
+                lyr_geom_type = self.geom_type(lyr)
+                self.dlg.textEdit.insertPlainText('Geometry type: {}'.format(lyr_geom_type))
+                self.dlg.textEdit.insertPlainText('\nPath til fil: {}'.format(path))
+    
+    def geom_type(self, layer):
+        """
+        Tjekker om et layer er en valid datasource og returnerer typen.
+        """
+
+        if layer.isValid():
+            if layer.wkbType() == QGis.WKBPoint:
+                return 'Punkter'
+            if layer.wkbType() == QGis.WKBLineString:
+                return 'Linjer'
+            if layer.wkbType() == QGis.WKBPolygon:
+                return 'Polygoner'
+            if layer.wkbType() == QGis.WKBMultiPolygon:
+                return 'Multipolygoner'
+        else:
+            return '{} er ikke valid datakilde'.format(layer.name())
 
     def run(self):
         """Run method that performs all the real work"""
